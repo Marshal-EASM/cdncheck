@@ -5,3 +5,5 @@ cmd/functional-test/functional-test
 dist/
 
 .devcontainer
+
+.idea/
