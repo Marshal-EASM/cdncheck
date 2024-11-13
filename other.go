@@ -1,13 +1,12 @@
 package cdncheck
 
 import (
+	"regexp"
 	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/weppos/publicsuffix-go/publicsuffix"
 )
 
 var suffixToSource map[string]string
+var regexpToSource map[*regexp.Regexp]string
 
 // cdnWappalyzerTechnologies contains a map of wappalyzer technologies to cdns
 var cdnWappalyzerTechnologies = map[string]string{
@@ -21,26 +20,40 @@ var cdnWappalyzerTechnologies = map[string]string{
 // CheckFQDN checks if fqdns are known cloud ones
 func (c *Client) CheckSuffix(fqdns ...string) (isCDN bool, provider string, itemType string, err error) {
 	c.Once.Do(func() {
-		suffixToSource = make(map[string]string)
-		for source, suffixes := range generatedData.Common {
-			for _, suffix := range suffixes {
-				suffixToSource[suffix] = source
+		//suffixToSource = make(map[string]string)
+		//for source, suffixes := range generatedData.Common {
+		//	for _, suffix := range suffixes {
+		//		suffixToSource[suffix] = source
+		//	}
+		//}
+
+		regexpToSource = make(map[*regexp.Regexp]string)
+		for source, cdnwafDomains := range generatedData.Common {
+			for _, cdnwafDomain := range cdnwafDomains {
+				regexpToSource[regexp.MustCompile(cdnwafDomain)] = source
 			}
 		}
 	})
+
 	for _, fqdn := range fqdns {
-		parsed, err := publicsuffix.Parse(fqdn)
-		if err != nil {
-			return false, "", "", errors.Wrap(err, "could not parse fqdn")
+		for compiled, source := range regexpToSource {
+			if compiled.MatchString(fqdn) {
+				return true, source, "waf", nil
+			}
 		}
-		if discovered, ok := suffixToSource[parsed.TLD]; ok {
-			return true, discovered, "waf", nil
-		}
-		domain := parsed.SLD + "." + parsed.TLD
-		if discovered, ok := suffixToSource[domain]; ok {
-			return true, discovered, "waf", nil
-		}
+		//parsed, err := publicsuffix.Parse(fqdn)
+		//if err != nil {
+		//	return false, "", "", errors.Wrap(err, "could not parse fqdn")
+		//}
+		//if discovered, ok := suffixToSource[parsed.TLD]; ok {
+		//	return true, discovered, "waf", nil
+		//}
+		//domain := parsed.SLD + "." + parsed.TLD
+		//if discovered, ok := suffixToSource[domain]; ok {
+		//	return true, discovered, "waf", nil
+		//}
 	}
+
 	return false, "", "", nil
 }
 

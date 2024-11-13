@@ -172,7 +172,7 @@ func (r *Runner) processInputItem(input string, output chan Output) {
 			return
 		}
 
-		// 多ip的情况
+		// 多ip
 		for cidr := range cidrInputs {
 			r.processInputItemSingle(cidr, output)
 		}

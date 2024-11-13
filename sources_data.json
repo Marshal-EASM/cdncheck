@@ -2370,22 +2370,10 @@
       "alidns.cn"
     ],
     "阿里云 WAF": [
-      "yundunwaf1.com",
-      "yundunwaf2.com",
-      "yundunwaf3.com",
-      "yundunwaf4.com",
-      "yundunwaf5.com"
+      "yundunwaf[1-5].com"
     ],
     "阿里云全局流量管理": [
-      "gtm-a1b1.com",
-      "gtm-a1b2.com",
-      "gtm-a1b3.com",
-      "gtm-a1b4.com",
-      "gtm-a1b5.com",
-      "gtm-a1b6.com",
-      "gtm-a1b7.com",
-      "gtm-a1b8.com",
-      "gtm-a1b9.com"
+      "gtm-a[1-7]b[1-9].com"
     ],
     "阿里云直播": [
       "alivecdn.com"
@@ -2407,7 +2395,6 @@
       "aliyunga0019.com",
       "aliexpress.com",
       "alibabadns.com",
-      "yundunwaf5.com",
       "mxhichina.com",
       "aliyunddos1024.com",
       "alibabacorp.com",
