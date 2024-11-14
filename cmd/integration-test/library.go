@@ -3,7 +3,7 @@ package main
 import (
 	"net"
 
-	"github.com/projectdiscovery/cdncheck"
+	"github.com/Explorer1092/cdncheck"
 	errorutil "github.com/projectdiscovery/utils/errors"
 )
 

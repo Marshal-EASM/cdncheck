@@ -6,9 +6,9 @@
 
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-_red.svg"></a>
-<a href="https://goreportcard.com/badge/github.com/projectdiscovery/cdncheck"><img src="https://goreportcard.com/badge/github.com/projectdiscovery/cdncheck"></a>
-<a href="https://pkg.go.dev/github.com/projectdiscovery/cdncheck/pkg/cdncheck"><img src="https://img.shields.io/badge/go-reference-blue"></a>
-<a href="https://github.com/projectdiscovery/cdncheck/releases"><img src="https://img.shields.io/github/release/projectdiscovery/cdncheck"></a>
+<a href="https://goreportcard.com/badge/github.com/Explorer1092/cdncheck"><img src="https://goreportcard.com/badge/github.com/Explorer1092/cdncheck"></a>
+<a href="https://pkg.go.dev/github.com/Explorer1092/cdncheck/pkg/cdncheck"><img src="https://img.shields.io/badge/go-reference-blue"></a>
+<a href="https://github.com/Explorer1092/cdncheck/releases"><img src="https://img.shields.io/github/release/Explorer1092/cdncheck"></a>
 <a href="https://twitter.com/pdiscoveryio"><img src="https://img.shields.io/twitter/follow/pdiscoveryio.svg?logo=twitter"></a>
 <a href="https://discord.gg/projectdiscovery"><img src="https://img.shields.io/discord/695645237418131507.svg?logo=discord"></a>
 </p>
@@ -43,7 +43,7 @@ cdncheck is a tool for identifying the technology associated with dns / ip netwo
 **cdncheck** requires **go1.19** to install successfully. Run the following command to install the latest version:
 
 ```sh
-go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest
+go install -v github.com/Explorer1092/cdncheck/cmd/cdncheck@latest
 ```
 
 # Usage
@@ -162,7 +162,7 @@ var cdnWappalyzerTechnologies = map[string]string{
 
 Helper library that checks if a given IP is running on Cloud / CDN / WAF.
 
-The library can be used by importing `github.com/projectdiscovery/cdncheck`. here follows a basic example:
+The library can be used by importing `github.com/Explorer1092/cdncheck`. here follows a basic example:
 
 ```go
 package main
@@ -170,7 +170,7 @@ package main
 import (
 	"fmt"
 	"net"
-	"github.com/projectdiscovery/cdncheck"
+	"github.com/Explorer1092/cdncheck"
 )
 
 func main() {
