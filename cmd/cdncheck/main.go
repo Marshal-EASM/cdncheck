@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/projectdiscovery/cdncheck/internal/runner"
+	"github.com/Explorer1092/cdncheck/internal/runner"
 	"github.com/projectdiscovery/gologger"
 )
 

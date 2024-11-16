@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/Explorer1092/cdncheck"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ipinfo/go/v2/ipinfo"
-	"github.com/projectdiscovery/cdncheck"
 	stringsutil "github.com/projectdiscovery/utils/strings"
 )
 
