@@ -6,7 +6,7 @@ import (
 )
 
 var suffixToSource map[string]string
-var regexpToSource map[*regexp.Regexp]string
+var regexpToSource map[string]map[*regexp.Regexp]string
 
 // cdnWappalyzerTechnologies contains a map of wappalyzer technologies to cdns
 var cdnWappalyzerTechnologies = map[string]string{
@@ -27,20 +27,26 @@ func (c *Client) CheckSuffix(fqdns ...string) (isCDN bool, provider string, item
 		//	}
 		//}
 
-		regexpToSource = make(map[*regexp.Regexp]string)
-		for source, cdnwafDomains := range generatedData.Common {
-			for _, cdnwafDomain := range cdnwafDomains {
-				regexpToSource[regexp.MustCompile(cdnwafDomain)] = source
+		regexpToSource = make(map[string]map[*regexp.Regexp]string)
+		for cnametype, cnamedata := range generatedData.Common {
+			regexpToSource[cnametype] = make(map[*regexp.Regexp]string)
+			for cnamesource, cnames := range cnamedata {
+				for _, cname := range cnames {
+					regexpToSource[cnametype][regexp.MustCompile(cname)] = cnamesource
+				}
 			}
 		}
 	})
 
 	for _, fqdn := range fqdns {
-		for compiled, source := range regexpToSource {
-			if compiled.MatchString(fqdn) {
-				return true, source, "waf", nil
+		for cnametype, cnamedata := range regexpToSource {
+			for compiled, source := range cnamedata {
+				if compiled.MatchString(fqdn) {
+					return true, source, cnametype, nil
+				}
 			}
 		}
+
 		//parsed, err := publicsuffix.Parse(fqdn)
 		//if err != nil {
 		//	return false, "", "", errors.Wrap(err, "could not parse fqdn")

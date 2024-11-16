@@ -28,9 +28,22 @@ type AKSKConfig struct {
 	HuaweiID  string `yaml:"HuaweiID"`
 	HuaweiKey string `yaml:"HuaweiKey"`
 
-	// https://support.huaweicloud.com/devg-apisign/api-sign-provide-aksk.html
+	// https://cas.wangsu.com/
 	WangsuID  string `yaml:"WangsuID"`
 	WangsuKey string `yaml:"WangsuKey"`
+}
+
+type FQDNProvider map[string][]string
+
+type FQDN struct {
+	Cdn  FQDNProvider `yaml:"cdn" json:"cdn"`
+	Waf  FQDNProvider `yaml:"waf" json:"waf"`
+	Slb  FQDNProvider `yaml:"slb" json:"slb"`
+	Mail FQDNProvider `yaml:"mail" json:"mail"`
+}
+
+type Common struct {
+	FQDN FQDN `yaml:"fqdn" json:"fqdn"`
 }
 
 // InputCompiled contains a compiled list of input structure
@@ -42,7 +55,7 @@ type InputCompiled struct {
 	// Cloud contains a list of ranges for Cloud cidrs
 	Cloud map[string][]string `yaml:"cloud,omitempty" json:"cloud,omitempty"`
 	// Common contains a list of suffixes for major sources
-	Common map[string][]string `yaml:"common,omitempty" json:"common,omitempty"`
+	Common map[string]map[string][]string `yaml:"common,omitempty" json:"common,omitempty"`
 }
 
 // providerScraper is a structure for scraping providers

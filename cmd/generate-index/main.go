@@ -99,5 +99,6 @@ func parseCategoriesFromFile() (*generate.Categories, error) {
 	if err := yaml.NewDecoder(file).Decode(categories); err != nil {
 		return nil, errors.Wrap(err, "could not decode input.yaml file")
 	}
+
 	return categories, nil
 }

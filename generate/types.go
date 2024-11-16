@@ -18,10 +18,10 @@ type Category struct {
 	// ASN contains ASN numbers for an Input item
 	ASN map[string][]string `yaml:"asn"`
 	// CIDR contains a list of CIDRs for Input item
-	//
+
 	// CIDR is generated using generate-index tool which is then
 	// used for checking the provided IP for each input type.
 	CIDR map[string][]string `yaml:"cidr"`
 	// FQDN contains public suffixes for major cloud operators
-	FQDN map[string][]string `yaml:"fqdn"`
+	FQDN map[string]map[string][]string `yaml:"fqdn"`
 }

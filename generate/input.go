@@ -23,8 +23,9 @@ func (c *Categories) Compile(options *Options) (*cdncheck.InputCompiled, error) 
 		CDN:    make(map[string][]string),
 		WAF:    make(map[string][]string),
 		Cloud:  make(map[string][]string),
-		Common: make(map[string][]string),
+		Common: make(map[string]map[string][]string),
 	}
+
 	// Fetch input items specified
 	if c.CDN != nil {
 		if err := c.CDN.fetchInputItem(options, compiled.CDN); err != nil {
@@ -41,6 +42,7 @@ func (c *Categories) Compile(options *Options) (*cdncheck.InputCompiled, error) 
 			log.Printf("[err] could not fetch cloud item: %s\n", err)
 		}
 	}
+
 	if c.Common != nil {
 		compiled.Common = c.Common.FQDN
 	}
@@ -86,6 +88,7 @@ func (c *Category) fetchInputItem(options *Options, data map[string][]string) er
 	}
 	// Only scrape ASN if we have an ID
 	if !options.HasAuthInfo() {
+		// 如果没有验证token，那么就直接结束
 		return nil
 	}
 	for provider, asn := range c.ASN {
