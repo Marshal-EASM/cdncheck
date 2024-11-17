@@ -1,10 +1,11 @@
 package cdncheck
 
 import (
-	"github.com/projectdiscovery/retryabledns"
 	"net"
 	"strings"
 	"sync"
+
+	"github.com/projectdiscovery/retryabledns"
 )
 
 var (
@@ -15,10 +16,10 @@ var (
 
 // DefaultResolvers trusted (taken from fastdialer)
 var DefaultResolvers = []string{
-	"1.1.1.1:53",
-	"1.0.0.1:53",
-	"8.8.8.8:53",
-	"8.8.4.4:53",
+	"223.6.6.6:53",
+	"223.5.5.5:53",
+	"114.114.114.114:53",
+	"119.29.29.29:53",
 }
 
 // Client checks for CDN based IPs which should be excluded
