@@ -1,13 +1,12 @@
 package cdncheck
 
 import (
+	"regexp"
 	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/weppos/publicsuffix-go/publicsuffix"
 )
 
 var suffixToSource map[string]string
+var regexpToSource map[string]map[*regexp.Regexp]string
 
 // cdnWappalyzerTechnologies contains a map of wappalyzer technologies to cdns
 var cdnWappalyzerTechnologies = map[string]string{
@@ -21,26 +20,46 @@ var cdnWappalyzerTechnologies = map[string]string{
 // CheckFQDN checks if fqdns are known cloud ones
 func (c *Client) CheckSuffix(fqdns ...string) (isCDN bool, provider string, itemType string, err error) {
 	c.Once.Do(func() {
-		suffixToSource = make(map[string]string)
-		for source, suffixes := range generatedData.Common {
-			for _, suffix := range suffixes {
-				suffixToSource[suffix] = source
+		//suffixToSource = make(map[string]string)
+		//for source, suffixes := range generatedData.Common {
+		//	for _, suffix := range suffixes {
+		//		suffixToSource[suffix] = source
+		//	}
+		//}
+
+		regexpToSource = make(map[string]map[*regexp.Regexp]string)
+		for cnametype, cnamedata := range generatedData.Common {
+			regexpToSource[cnametype] = make(map[*regexp.Regexp]string)
+			for cnamesource, cnames := range cnamedata {
+				for _, cname := range cnames {
+					regexpToSource[cnametype][regexp.MustCompile(cname)] = cnamesource
+				}
 			}
 		}
 	})
+
 	for _, fqdn := range fqdns {
-		parsed, err := publicsuffix.Parse(fqdn)
-		if err != nil {
-			return false, "", "", errors.Wrap(err, "could not parse fqdn")
+		for cnametype, cnamedata := range regexpToSource {
+			for compiled, source := range cnamedata {
+				if compiled.MatchString(fqdn) {
+					return true, source, cnametype, nil
+				}
+			}
 		}
-		if discovered, ok := suffixToSource[parsed.TLD]; ok {
-			return true, discovered, "waf", nil
-		}
-		domain := parsed.SLD + "." + parsed.TLD
-		if discovered, ok := suffixToSource[domain]; ok {
-			return true, discovered, "waf", nil
-		}
+
+		//parsed, err := publicsuffix.Parse(fqdn)
+		//if err != nil {
+		//	return false, "", "", errors.Wrap(err, "could not parse fqdn")
+		//}
+		//if discovered, ok := suffixToSource[parsed.TLD]; ok {
+		//	return true, discovered, "waf", nil
+		//}
+		//domain := parsed.SLD + "." + parsed.TLD
+		//if discovered, ok := suffixToSource[domain]; ok {
+		//	return true, discovered, "waf", nil
+		//}
 	}
+
 	return false, "", "", nil
 }
 

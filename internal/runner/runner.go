@@ -31,6 +31,7 @@ func NewRunner(options *Options) *Runner {
 	if err != nil {
 		gologger.Fatal().Msgf("failed to create cdncheck client: %v", err)
 	}
+
 	runner := &Runner{
 		options:   options,
 		cdnclient: client,
@@ -161,8 +162,8 @@ func (r *Runner) configureOutput() error {
 
 // processInputItem processes a single input item
 func (r *Runner) processInputItem(input string, output chan Output) {
-	// CIDR input
 	if _, ipRange, _ := net.ParseCIDR(input); ipRange != nil {
+		// CIDR input
 		cidrInputs, err := mapcidr.IPAddressesAsStream(input)
 		if err != nil {
 			if r.options.Verbose {
@@ -170,11 +171,13 @@ func (r *Runner) processInputItem(input string, output chan Output) {
 			}
 			return
 		}
+
+		// 多ip
 		for cidr := range cidrInputs {
 			r.processInputItemSingle(cidr, output)
 		}
 	} else {
-		// Normal input
+		// 单ip / 域名
 		r.processInputItemSingle(input, output)
 	}
 }
@@ -185,6 +188,7 @@ func (r *Runner) processInputItemSingle(item string, output chan Output) {
 		Input:  item,
 	}
 
+	// 默认不支持ipv6格式
 	if iputils.IsIPv6(item) {
 		// TODO: IPv6 support refer issue #59
 		if r.options.Verbose {
@@ -198,19 +202,25 @@ func (r *Runner) processInputItemSingle(item string, output chan Output) {
 	var err error
 
 	if iputils.IsIP(item) {
+		// 处理ip的情况, 会通过CDN厂商的IP段来判断CDN
 		targetIP := net.ParseIP(item)
 		matched, provider, itemType, err = r.cdnclient.Check(targetIP)
 	} else {
+		// 处理域名的情况, 会通过 dns.TypeA, dns.TypeAAAA, dns.TypeCNAME 记录来进行处理判断CDN
 		matched, provider, itemType, err = r.cdnclient.CheckDomainWithFallback(item)
 	}
+
 	if err != nil && r.options.Verbose {
+		// 指定了verbose 详细输出的情况
 		gologger.Error().Msgf("Could not check domain cdn %s: %s", item, err)
 	}
 
+	// 数据填充
 	data.itemType = itemType
 	data.IP = item
 	data.Timestamp = time.Now()
 
+	// 如果勾选了exclude的情况
 	if r.options.Exclude {
 		if !matched {
 			output <- data
@@ -218,6 +228,7 @@ func (r *Runner) processInputItemSingle(item string, output chan Output) {
 		return
 	}
 
+	// 判断类型
 	switch itemType {
 	case "cdn":
 		data.Cdn = matched
@@ -229,19 +240,26 @@ func (r *Runner) processInputItemSingle(item string, output chan Output) {
 		data.Waf = matched
 		data.WafName = provider
 	}
+
+	// 过滤，不想要的
 	if skipped := filterIP(r.options, data); skipped {
 		return
 	}
+
+	// 匹配，想要的
 	if matched := matchIP(r.options, data); !matched {
 		return
 	}
+
 	switch {
 	case r.options.Cdn && data.itemType == "cdn", r.options.Cloud && data.itemType == "cloud", r.options.Waf && data.itemType == "waf":
 		{
+			// 默认cdn cloud waf匹配识别的情况
 			output <- data
 		}
 	case (!r.options.Cdn && !r.options.Waf && !r.options.Cloud) && matched:
 		{
+			// 自定义匹配识别的情况
 			output <- data
 		}
 	}

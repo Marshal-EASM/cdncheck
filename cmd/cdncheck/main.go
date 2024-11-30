@@ -15,4 +15,3 @@ func main() {
 		gologger.Fatal().Msgf("Could not run cdncheck enumeration: %s\n", err)
 	}
 }
-

@@ -134,7 +134,7 @@ func readFlags() (*Options, error) {
 	)
 
 	flagSet.CreateGroup("output", "OUTPUT",
-		flagSet.BoolVarP(&opts.Response, "resp", "", true, "display technology name in cli output"),
+		flagSet.BoolVarP(&opts.Response, "resp", "", false, "display technology name in cli output"),
 		flagSet.StringVarP(&opts.Output, "output", "o", "", "write output in plain format to file"),
 		flagSet.BoolVarP(&opts.Verbose, "verbose", "v", false, "display verbose output"),
 		flagSet.BoolVarP(&opts.Json, "jsonl", "j", false, "write output in json(line) format"),
@@ -151,7 +151,7 @@ func readFlags() (*Options, error) {
 
 	flagSet.CreateGroup("update", "UPDATE",
 		flagSet.CallbackVarP(GetUpdateCallback(), "update", "up", "update cdncheck to latest version"),
-		flagSet.BoolVarP(&opts.DisableUpdateCheck, "disable-update-check", "duc", true, "disable automatic cdncheck update check"),
+		flagSet.BoolVarP(&opts.DisableUpdateCheck, "disable-update-check", "duc", false, "disable automatic cdncheck update check"),
 	)
 
 	if err := flagSet.Parse(); err != nil {
