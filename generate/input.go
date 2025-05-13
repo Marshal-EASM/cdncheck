@@ -11,6 +11,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ipinfo/go/v2/ipinfo"
+	asnmap "github.com/projectdiscovery/asnmap/libs"
 	"github.com/projectdiscovery/cdncheck"
 	stringsutil "github.com/projectdiscovery/utils/strings"
 )
@@ -80,7 +81,8 @@ func (c *Category) fetchInputItem(options *Options, data map[string][]string) er
 	for provider, urls := range c.URLs {
 		for _, item := range urls {
 			if cidrs, err := getCIDRFromURL(item); err != nil {
-				return fmt.Errorf("could not get url %s: %s", item, err)
+				log.Printf("[err] could not get cidr from %s: %s\n", item, err)
+				continue
 			} else {
 				data[provider] = cidrs
 			}
@@ -93,11 +95,23 @@ func (c *Category) fetchInputItem(options *Options, data map[string][]string) er
 	}
 	for provider, asn := range c.ASN {
 		for _, item := range asn {
-			if cidrs, err := getIpInfoASN(http.DefaultClient, options.IPInfoToken, item); err != nil {
-				return fmt.Errorf("could not get asn %s: %s", item, err)
-			} else {
-				data[provider] = cidrs
+			if options.IPInfoToken != "" {
+				if cidrs, err := getIpInfoASN(http.DefaultClient, options.IPInfoToken, item); err != nil {
+					log.Printf("[ipinfo] could not get asn %s: %s\n", item, err)
+					continue
+				} else {
+					data[provider] = cidrs
+				}
 			}
+			if options.PDCPApiKey != "" {
+				if cidrs, err := getAsnMap(item); err != nil {
+					log.Printf("[asnmap] could not get asn %s: %s\n", item, err)
+					continue
+				} else {
+					data[provider] = cidrs
+				}
+			}
+
 		}
 	}
 	return nil
@@ -167,6 +181,33 @@ retry:
 	body := string(data)
 
 	cidrs := cidrRegex.FindAllString(body, -1)
+	if len(cidrs) == 0 {
+		return nil, errNoCidrFound
+	}
+	return cidrs, nil
+}
+
+// getAsnMap returns a map of ASN to CIDR ranges
+func getAsnMap(asn string) (cidrs []string, err error) {
+	client, err := asnmap.NewClient()
+
+	if err != nil {
+		return nil, err
+	}
+	responses, err := client.GetData(asn)
+	if err != nil {
+		return nil, err
+	}
+	results, err := asnmap.MapToResults(responses)
+	if err != nil {
+		return nil, err
+	}
+	if len(results) == 0 {
+		return nil, errNoCidrFound
+	}
+	for _, result := range results {
+		cidrs = append(cidrs, result.AS_range...)
+	}
 	if len(cidrs) == 0 {
 		return nil, errNoCidrFound
 	}

@@ -14,9 +14,11 @@ import (
 )
 
 var (
-	input  = flag.String("input", "provider.yaml", "provider file for processing")
-	output = flag.String("output", "sources_data.json", "output file for generated sources")
-	token  = flag.String("token", "", "Token for the ipinfo service")
+	input      = flag.String("input", "provider.yaml", "provider file for processing")
+	output     = flag.String("output", "sources_data.json", "output file for generated sources")
+	token      = flag.String("token", "", "Token for the ipinfo service")
+	pdcpApiKey = flag.String("pdcpApiKey", "", "API key for the pd cloud service")
+	threads    = flag.Int("threads", 10, "number of threads to use for processing")
 )
 
 func main() {
@@ -33,7 +35,11 @@ func process() error {
 	if *token != "" && options.IPInfoToken == "" {
 		options.IPInfoToken = *token
 	}
-
+	if *pdcpApiKey != "" && options.PDCPApiKey == "" {
+		options.PDCPApiKey = *pdcpApiKey
+		os.Setenv("PDCP_API_KEY", *pdcpApiKey)
+	}
+	options.Threads = *threads
 	categories, err := parseCategoriesFromFile()
 	if err != nil {
 		return err

@@ -3,11 +3,54 @@
 
 # cdn contains the inputs for cdn checking
 cdn:
-  # asn contains the ASN numbers for providers
+  # asn contains the ASN numbers for providers 
   asn:
-    leaseweb:
-      - AS60626
-
+    Amazon:
+      - AS16509
+      - AS14618
+    Google:
+      - AS396982
+      - AS15169
+    Cloudflare:
+      - AS13335
+      - AS209242
+    Incapsula:
+      - AS19551
+    Microsoft:
+      - AS8075
+    Fastly:
+      - AS54113
+    Metaverse:
+      - AS54994
+    CHINANET-BACKBONE:
+      - AS4134
+    Fly.io:
+      - AS40509
+    ACE:
+      - AS139341
+    Nazwa.pl:
+      - AS15967
+    Akamai:
+      - AS16625
+      - AS20940
+    Datacamp:
+      - AS60068
+    Zenlayer:
+      - AS21859
+    OVH:
+      - AS16276
+    Taobao:
+      - AS24429
+    Hostinger:
+      - AS47583
+    DigitalOcean:
+      - AS14061
+    GoDaddy:
+      - AS398787
+    G-Core Labs:
+      - AS199524
+    Alibaba:
+      - AS37963
   # urls contains a list of URLs for CDN providers
   urls:
     gcore:
