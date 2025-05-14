@@ -26,3 +26,13 @@ type Category struct {
 	// FQDN contains public suffixes for major cloud operators
 	FQDN map[string]map[string][]string `yaml:"fqdn"`
 }
+
+type BGPResp struct {
+	Prefixes []Prefix `json:"prefixes"`
+}
+
+type Prefix struct {
+	Prefix string `json:"Prefix"`
+	Count  int64  `json:"Count"`
+	Total  int64  `json:"Total"`
+}

@@ -2,12 +2,15 @@ package generate
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ipinfo/go/v2/ipinfo"
@@ -89,10 +92,10 @@ func (c *Category) fetchInputItem(options *Options, data map[string][]string) er
 		}
 	}
 	// Only scrape ASN if we have an ID
-	if !options.HasAuthInfo() {
-		// 如果没有验证token，那么就直接结束
-		return nil
-	}
+	// if !options.HasAuthInfo() {
+	// 	// 如果没有验证token，那么就直接结束
+	// 	return nil
+	// }
 	for provider, asn := range c.ASN {
 		for _, item := range asn {
 			if options.IPInfoToken != "" {
@@ -111,7 +114,38 @@ func (c *Category) fetchInputItem(options *Options, data map[string][]string) er
 					data[provider] = cidrs
 				}
 			}
-
+			// Add BGP HE.net ASN lookup
+			// Assuming there will be a way to specify to use this source,
+			// for now, we can add it alongside other ASN lookups or make it conditional if an option is provided.
+			// For simplicity, let's assume it's another source to try.
+			// A more robust solution would involve a configuration option to select ASN data sources.
+			if cidrs, err := getBgpHeASN(http.DefaultClient, item); err != nil {
+				log.Printf("[bgp.he.net] could not get asn %s: %s\n", item, err)
+				// Potentially continue to next item or provider if this source fails
+			} else {
+				// Decide how to merge data if multiple ASN sources return results.
+				// For now, let's append, but this might lead to duplicates if not handled.
+				// A better approach might be to prioritize or use a set-like structure before converting to slice.
+				data[provider] = append(data[provider], cidrs...)
+				// To avoid duplicates, one might use a map to store unique CIDRs:
+				// currentCidrs := make(map[string]struct{})
+				//
+				//	for _, cidr := range data[provider] {
+				//	 currentCidrs[cidr] = struct{}{}
+				//	}
+				//
+				//	for _, newCidr := range cidrs {
+				//	 currentCidrs[newCidr] = struct{}{}
+				//	}
+				//
+				// var uniqueCidrs []string
+				//
+				//	for cidr := range currentCidrs {
+				//	 uniqueCidrs = append(uniqueCidrs, cidr)
+				//	}
+				//
+				// data[provider] = uniqueCidrs
+			}
 		}
 	}
 	return nil
@@ -140,6 +174,56 @@ func getIpInfoASN(httpClient *http.Client, token string, asn string) ([]string, 
 		return nil, errNoCidrFound
 	}
 	return cidrs, nil
+}
+
+// getBgpHeASN returns cidrs for an ASN from bgp.he.net
+func getBgpHeASN(httpClient *http.Client, asn string) ([]string, error) {
+	asn = strings.TrimPrefix(asn, "AS")
+	httpClient.Timeout = 15 * time.Second // Set a timeout for the HTTP client
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		if attempt > 0 {
+			time.Sleep(2 * time.Second) // Wait for 2 seconds before retrying
+		}
+		url := fmt.Sprintf("https://bgp.he.net/super-lg/report/api/v1/prefixes/originated/%s", asn)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			lastErr = fmt.Errorf("failed to create request for bgp.he.net (attempt %d): %w", attempt+1, err)
+			continue
+		}
+		// Set headers as specified in the task
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			lastErr = fmt.Errorf("failed to get data from bgp.he.net for ASN %s (attempt %d): %w", asn, attempt+1, err)
+			continue
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			bodyBytes, _ := io.ReadAll(resp.Body) // Read body for error context
+			resp.Body.Close()                     // Close body after reading
+			lastErr = fmt.Errorf("bgp.he.net API request failed for ASN %s with status %d (attempt %d): %s", asn, resp.StatusCode, attempt+1, string(bodyBytes))
+			continue
+		}
+
+		var bgpResp BGPResp
+		if err := json.NewDecoder(resp.Body).Decode(&bgpResp); err != nil {
+			resp.Body.Close() // Close body in case of decoding error
+			lastErr = fmt.Errorf("failed to decode bgp.he.net response for ASN %s (attempt %d): %w", asn, attempt+1, err)
+			continue
+		}
+		resp.Body.Close() // Ensure body is closed
+
+		if len(bgpResp.Prefixes) == 0 {
+			return nil, errNoCidrFound // No need to retry if no prefixes found and request was successful
+		}
+
+		var cidrs []string
+		for _, prefix := range bgpResp.Prefixes {
+			cidrs = append(cidrs, prefix.Prefix)
+		}
+		return cidrs, nil // Success
+	}
+	return nil, lastErr // All attempts failed
 }
 
 // getCIDRFromURL scrapes CIDR ranges for a URL using a regex
