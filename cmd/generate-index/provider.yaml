@@ -121,6 +121,47 @@ waf:
 
 # cloud contains the inputs for cloud CIDR checking
 cloud:
+  asn:
+    Amazon:
+      - AS16509
+      - AS14618
+      - AS8987
+    Microsoft:
+      - AS8075
+      - AS8070
+      - AS8069
+      - AS3598
+    Google:
+      - AS396982
+      - AS15169
+      - AS19527
+    Alibaba:
+      - AS37963
+      - AS45102
+      - AS24429
+    DigitalOcean:
+      - AS14061
+    Oracle:
+      - AS31898
+    Akamai:
+      - AS63949
+      - AS20940
+    Vultr:
+      - AS20473
+    Blue Cloud Technology:
+      - AS58593
+    Guanghuan Xinwang:
+      - AS55960
+    West Cloud Data:
+      - AS135629
+    Yandex:
+      - AS200350
+    Verizon:
+      - AS6167
+    IBM:
+      - AS36351
+    Microsoft Mobile Alliance:
+      - AS59067
   # urls contains a list of URLs for cloud providers
   urls:
     aws:
