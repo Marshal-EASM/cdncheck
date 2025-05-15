@@ -196,6 +196,10 @@ func (c *Client) CheckDNSResponse(dnsResponse *retryabledns.DNSData) (matched bo
 			if err != nil {
 				return false, "", "", err
 			}
+			matched, value, itemType, err = c.Check(ipAddr)
+			if err != nil {
+				return false, "", "", err
+			}
 			if matched {
 				return matched, value, itemType, nil
 			}
