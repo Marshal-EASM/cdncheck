@@ -95,48 +95,6 @@ func (c *Client) CheckCloud(ip net.IP) (matched bool, value string, err error) {
 // Check checks if ip belongs to one of CDN, WAF and Cloud . It is generic method for Checkxxx methods
 func (c *Client) Check(ip net.IP) (matched bool, value string, itemType string, err error) {
 
-	// 网宿云 -> CDN查询
-	//if matched, value, err = c._checkWangsuCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("网宿云", matched, value, err)
-
-	// 腾讯云 -> CDN查询
-	//if matched, value, err = c._checkTencentCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("腾讯云", matched, value, err)
-
-	// 火山引擎 -> CDN查询
-	//if matched, value, err = c._checkVolcengineCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("火山引擎", matched, value, err)
-
-	// 阿里云 -> CDN查询
-	//if matched, value, err = c._checkAliyunCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("阿里云", matched, value, err)
-
-	// 百度云 -> CDN查询
-	//if matched, value, err = c._checkBaiduCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("百度云", matched, value, err)
-
-	// 华为云 -> CDN查询
-	//if matched, value, err = c._checkHuaweiCdn(ip); err == nil && matched && value != "" {
-	//	return matched, value, "cdn", nil
-	//}
-
-	//fmt.Println("华为云", matched, value, err)
-
 	// 匹配cdn
 	if matched, value, err = c.cdn.Match(ip); err == nil && matched && value != "" {
 		return matched, value, "cdn", nil
