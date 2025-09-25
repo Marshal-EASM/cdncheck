@@ -24,8 +24,6 @@ cdn:
       - AS54113
     Metaverse:
       - AS54994
-    CHINANET-BACKBONE:
-      - AS4134
     Fly.io:
       - AS40509
     ACE:

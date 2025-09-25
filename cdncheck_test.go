@@ -9,8 +9,8 @@ import (
 
 func TestCDNCheckValid(t *testing.T) {
 	client := New()
-
-	found, provider, itemType, err := client.Check(net.ParseIP("173.245.48.12"))
+	found, provider, itemType, err := client.Check(net.ParseIP("218.92.250.250"))
+	t.Logf("found: %v, provider: %s, itemType: %s, err: %v", found, provider, itemType, err)
 	require.Equal(t, "cloudflare", provider, "could not get correct provider")
 	require.Equal(t, "waf", itemType, "could not get correct item type")
 	require.Nil(t, err, "Could not check ip in ranger")
